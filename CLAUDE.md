@@ -8,7 +8,6 @@ Before beginning any task, read the relevant skill guides under `skill/`:
 
 - **[skill/jira.md](skill/jira.md)** — How to fetch tickets, extract requirements, update status, and comment via the Jira MCP server.
 - **[skill/figma.md](skill/figma.md)** — How to pull design specs, download images/icons, set up resources, and run visual comparisons via the Figma MCP server.
-- **[skill/github.md](skill/github.md)** — Branching strategy, commit conventions, PR creation with `gh` CLI, and safety rules.
 
 ## Project
 
@@ -56,18 +55,13 @@ When implementing a screen from a Figma design referenced by a ticket:
 2. **Capture a reference screenshot of the Figma frame.**
    - Export the target frame as PNG at 2x via `mcp__figma__download_figma_images` (pass the frame's nodeId, name it `<screen>_figma.png`, save under `design-refs/`).
 
-3. **Build and run on an emulator, then capture the rendered screen.**
-   - Build + install: `./gradlew installDebug`
-   - Launch: `adb shell am start -n com.example.mypinapplication/.MainActivity`
-   - Screenshot: `adb exec-out screencap -p > design-refs/<screen>_impl.png`
-
-4. **Compare Figma reference vs. emulator screenshot — implementation must match ≥ 80%.**
-   - Use the `Read` tool on both PNGs to visually inspect them side by side.
+3. **Compare Figma reference vs. the rendered screen — implementation must match ≥ 80%.**
+   - Use the `Read` tool to visually inspect the Figma reference and the rendered screen side by side.
    - Walk through each element: position, size, color, typography weight/size, corner radius, stroke, shadow, gradient stops, spacing between elements, alignment.
-   - Score the match honestly. If < 80%, iterate on the Compose code (re-pull Figma specs if values disagree) and re-screenshot until ≥ 80%.
+   - Score the match honestly. If < 80%, iterate on the Compose code (re-pull Figma specs if values disagree) and re-check until ≥ 80%.
    - Record the final score and any intentional deviations in the PR/task summary.
 
-5. **Do not claim a UI task done without the screenshot comparison.** A green build verifies code correctness, not visual fidelity.
+4. **Do not claim a UI task done without the visual comparison.** A green build verifies code correctness, not visual fidelity.
 
 ## Conventions
 
@@ -82,15 +76,6 @@ When implementing a screen from a Figma design referenced by a ticket:
 ```bash
 # Build a debug APK
 ./gradlew assembleDebug
-
-# Build + install on a running emulator/device
-./gradlew installDebug
-
-# Launch the app
-adb shell am start -n com.example.mypinapplication/.MainActivity
-
-# Screenshot the connected emulator/device
-adb exec-out screencap -p > design-refs/<screen>_impl.png
 
 # Run unit tests
 ./gradlew test

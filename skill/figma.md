@@ -1,6 +1,6 @@
-mcp# Figma MCP Skill
+# Figma MCP Skill
 
-How to use the Figma MCP server (`mcp__figma__get_figma_data`, `mcp__figma__download_figma_images`) in this project.
+**Platform-agnostic guidance** for pulling design specs, downloading assets, and verifying visual fidelity across all platforms (iOS, Web, Backend UI, etc.)
 
 ## Setup
 
@@ -35,26 +35,27 @@ This returns:
 - **Stroke/border** — strokeWeight, borderRadius
 - **Effects** — shadows, blur
 
-### Key spec mappings for SwiftUI
+### Key spec mappings for different platforms
 
-| Figma Property | SwiftUI Equivalent |
-|---|---|
-| `fontSize` / `fontWeight` | `.font(.system(size:, weight:))` |
-| `lineHeight` | `.lineSpacing()` or custom |
-| `borderRadius` | `RoundedRectangle(cornerRadius:)` |
-| `padding` | `.padding(EdgeInsets(...))` |
-| `gap` | `HStack(spacing:)` / `VStack(spacing:)` |
-| `fill` hex color | `Color(red:, green:, blue:)` — convert hex to 0-1 range |
-| `fill` rgba | `.opacity()` modifier |
-| `fill` gradient | `LinearGradient(stops:...)` |
-| `fill` IMAGE type | Download via `download_figma_images` |
-| `strokeWeight` + `stroke` | `.strokeBorder(..., lineWidth:)` |
-| `effects.boxShadow` | `.shadow(color:, radius:, x:, y:)` |
-| `alignItems: center` | `.alignment: .center` or frame alignment |
+| Figma Property | SwiftUI | React/CSS | HTML |
+|---|---|---|---|
+| `fontSize` / `fontWeight` | `.font(.system(size:, weight:))` | `fontSize`, `fontWeight` CSS | `<span style="font-size:; font-weight:;">` |
+| `lineHeight` | `.lineSpacing()` | `lineHeight` CSS | `line-height` CSS |
+| `borderRadius` | `RoundedRectangle(cornerRadius:)` | `borderRadius` CSS | `border-radius` CSS |
+| `padding` | `.padding(EdgeInsets(...))` | `padding` CSS | `padding` CSS |
+| `gap` | `HStack(spacing:)` / `VStack(spacing:)` | `gap` CSS | CSS flexbox `gap` |
+| `fill` hex color | `Color(red:, green:, blue:)` | `color: #XXXXXX` | `color: #XXXXXX` |
+| `fill` rgba | `.opacity()` modifier | `rgba(r,g,b,a)` CSS | `rgba(r,g,b,a)` CSS |
+| `fill` gradient | `LinearGradient(stops:...)` | `background: linear-gradient` | `background: linear-gradient` |
+| `fill` IMAGE type | Download via `download_figma_images` | Download via `download_figma_images` | Download via `download_figma_images` |
+| `strokeWeight` + `stroke` | `.strokeBorder(..., lineWidth:)` | `border` CSS | `border` CSS |
+| `effects.boxShadow` | `.shadow(color:, radius:, x:, y:)` | `box-shadow` CSS | `box-shadow` CSS |
 
 ### Font substitution
 
-When Figma specifies a font not bundled in the app (e.g. Instrument Sans), use SF Pro (system font) and preserve the exact `fontSize` and `fontWeight` from Figma.
+When Figma specifies a font not bundled in your app/project, use the system default font and preserve the exact `fontSize` and `fontWeight` from Figma.
+- iOS: SF Pro (system font)
+- Web: System font stack
 
 ## Downloading images
 
@@ -76,49 +77,27 @@ mcp__figma__download_figma_images
   pngScale: 2
 ```
 
-Then add the PNG to `iOS-MCP-xcode26/Assets.xcassets/<name>.imageset/` with a `Contents.json`:
+## Integrating assets into your project
 
-```json
-{
-  "images": [
-    { "idiom": "universal", "scale": "1x" },
-    { "idiom": "universal", "scale": "2x" },
-    { "filename": "image.png", "idiom": "universal", "scale": "3x" }
-  ],
-  "info": { "author": "xcode", "version": 1 }
-}
-```
+**iOS**: Add to `Assets.xcassets/` folder
+**Web**: Add to `public/images/` or `src/assets/` folder
+**Backend**: Add to `static/images/` or appropriate asset folder
 
-### SVG icons
+### iOS: PNG/JPG images
 
-For nodes of type `IMAGE-SVG`:
+Add the PNG to `Assets.xcassets/<name>.imageset/` with `Contents.json`
 
-```
-mcp__figma__download_figma_images
-  fileKey: "RbxZunWIJGyF1YrWcgE54q"
-  nodes: [
-    { "nodeId": "5-13", "fileName": "icon_mail.svg" },
-    { "nodeId": "5-18", "fileName": "icon_lock.svg" }
-  ]
-  localPath: "design-refs"
-```
+### iOS: SVG icons (template rendering)
 
-Then add each SVG to `iOS-MCP-xcode26/Assets.xcassets/<name>.imageset/` with this `Contents.json`:
+Add SVG to `Assets.xcassets/<name>.imageset/` with `Contents.json` and `template-rendering-intent: template`
 
-```json
-{
-  "images": [
-    { "filename": "icon_name.svg", "idiom": "universal" }
-  ],
-  "info": { "author": "xcode", "version": 1 },
-  "properties": {
-    "preserves-vector-representation": true,
-    "template-rendering-intent": "template"
-  }
-}
-```
+### Web: PNG/JPG images
 
-The `template` rendering intent allows `foregroundStyle` to tint the icon color at runtime.
+Place in `public/images/` or `src/assets/` and reference in code
+
+### Web: SVG icons
+
+Place in `src/icons/` or `public/svgs/` and import/use with color tinting support
 
 ### Exporting a frame as reference screenshot
 
@@ -142,12 +121,12 @@ mcp__figma__download_figma_images
 
 ## Common color conversions
 
-| Figma | SwiftUI |
-|---|---|
-| `#FFFFFF` | `.white` |
-| `#14120F` | `Color(red: 20/255, green: 18/255, blue: 15/255)` |
-| `rgba(255,255,255,0.8)` | `.white.opacity(0.8)` |
-| `rgba(0,0,0,0.18)` | `.black.opacity(0.18)` |
+| Figma | SwiftUI | React/CSS | HTML |
+|---|---|---|---|
+| `#FFFFFF` | `.white` | `#FFFFFF` or `rgb(255,255,255)` | `#FFFFFF` |
+| `#14120F` | `Color(red: 20/255, green: 18/255, blue: 15/255)` | `#14120F` or `rgb(20,18,15)` | `#14120F` |
+| `rgba(255,255,255,0.8)` | `.white.opacity(0.8)` | `rgba(255,255,255,0.8)` | `rgba(255,255,255,0.8)` |
+| `rgba(0,0,0,0.18)` | `.black.opacity(0.18)` | `rgba(0,0,0,0.18)` | `rgba(0,0,0,0.18)` |
 
-Hex to decimal: split into pairs, convert each to decimal, divide by 255.
-Example: `#14` = 20 decimal → `20/255`.
+**Conversion formula**: Hex to RGB: split into pairs, convert each to decimal, divide by 255 for SwiftUI.
+Example: `#14` = 20 decimal → `20/255` in SwiftUI (or just use `0x14` = 20)

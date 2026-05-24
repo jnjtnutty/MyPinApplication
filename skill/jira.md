@@ -1,22 +1,26 @@
 # Jira MCP Skill
 
-How to use the Jira MCP server (`mcp__jira__jira_get`, `mcp__jira__jira_post`, `mcp__jira__jira_put`) in this project.
+**Platform-agnostic guidance** for working with Jira tickets, extracting requirements, and updating status.
+
+How to use the Jira MCP server (`mcp__jira__jira_get`, `mcp__jira__jira_post`, `mcp__jira__jira_put`) to fetch and manage tickets across all platforms.
 
 ## Setup
 
 The Jira MCP server is pre-configured. No authentication step is needed at runtime.
 
-- Project key: **SCRUM**
-- Base API: `/rest/api/3`
+- **Base API**: `/rest/api/3`
+- **Project key**: Configurable (e.g., SCRUM, MOBILE, WEB, BACKEND, etc.) — update based on your project
 
-## Reading a ticket
+## Reading a Ticket
 
-When the user gives a ticket key (e.g. `SCRUM-38`), fetch it immediately:
+When you have a ticket key (e.g., `PROJECT-38`), fetch it immediately:
 
 ```
 mcp__jira__jira_get
-  path: /rest/api/3/issue/SCRUM-38
+  path: /rest/api/3/issue/PROJECT-38
 ```
+
+Replace `PROJECT-38` with your actual ticket key.
 
 ### Key fields to extract
 
@@ -36,9 +40,11 @@ For listing multiple tickets, always use `jq` to reduce token cost:
 ```
 mcp__jira__jira_get
   path: /rest/api/3/search/jql
-  queryParams: { "jql": "project=SCRUM AND status='Ready for AI'", "maxResults": "10" }
+  queryParams: { "jql": "project=PROJECT AND status='Ready for AI'", "maxResults": "10" }
   jq: "issues[*].{key: key, summary: fields.summary, status: fields.status.name}"
 ```
+
+Replace `PROJECT` with your actual project key.
 
 ## Extracting requirements from description
 
@@ -66,19 +72,21 @@ After completing work, update the ticket status via transitions:
 ```
 # 1. Get available transitions
 mcp__jira__jira_get
-  path: /rest/api/3/issue/SCRUM-38/transitions
+  path: /rest/api/3/issue/PROJECT-38/transitions
 
 # 2. Transition the ticket
 mcp__jira__jira_post
-  path: /rest/api/3/issue/SCRUM-38/transitions
+  path: /rest/api/3/issue/PROJECT-38/transitions
   body: { "transition": { "id": "<transition-id>" } }
 ```
 
-## Adding comments
+Replace `PROJECT-38` with your ticket key.
+
+## Adding Comments
 
 ```
 mcp__jira__jira_post
-  path: /rest/api/3/issue/SCRUM-38/comment
+  path: /rest/api/3/issue/PROJECT-38/comment
   body: {
     "body": {
       "type": "doc",
@@ -93,10 +101,14 @@ mcp__jira__jira_post
   }
 ```
 
+Replace `PROJECT-38` with your ticket key.
+
 ## Workflow
 
 1. **Read ticket** — extract user story, acceptance criteria, Figma link, technical notes
-2. **Implement** — follow the design-to-code workflow in CLAUDE.md
+2. **Implement** — follow the design-to-code workflow based on your platform
 3. **Verify** — check each acceptance criterion is met
 4. **Update status** — transition ticket when done
 5. **Comment** — leave a summary with match score and any deviations
+
+All platforms (iOS, Web, Backend) follow the same Jira workflow.
